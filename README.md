@@ -69,8 +69,8 @@ visitor:
   containers. 
 * Action: which is called when a node is visited.
 
-
-The current state is: it works somewhat under certain 
+The current state is: the example works using a std::list;
+the ctl::tree works for int.  Next step: tree with expression tree nodes. 
 
 My Hope
 -------
