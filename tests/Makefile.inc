@@ -1,17 +1,17 @@
-noinst_PROGRAMS += tests/PTL/VisitorTreeTest
 
-TESTS += tests/PTL/VisitorTreeTest
+# noinst_PROGRAMS += tests/PTL/VisitorTreeTest
 
-tests_PTL_VisitorTreeTest_SOURCES = \
-	tests/VisitorTreeTest.cc
+#TESTS += tests/PTL/VisitorTreeTest
 
-tests_PTL_VisitorTreeTest_CPPFLAGS = \
-        -I$(top_srcdir)/${GOOGLE_TEST_INCLUDE} \
-        -I$(top_srcdir)/lib
+#tests_PTL_VisitorTreeTest_SOURCES = \
+#	tests/VisitorTreeTest.cc
 
-tests_PTL_VisitorTreeTest_LDADD = \
-        contrib/gmock/lib/libgtest.la
+#tests_PTL_VisitorTreeTest_CPPFLAGS = \
+#        -I$(top_srcdir)/${GOOGLE_TEST_INCLUDE} \
+#        -I$(top_srcdir)/lib
 
+#tests_PTL_VisitorTreeTest_LDADD = \
+#        contrib/gmock/lib/libgtest.la
 
 noinst_PROGRAMS += tests/PTL/VisitorListTest
 
