@@ -44,4 +44,3 @@
 Local Variables:
 mode: outline
 End:
-
