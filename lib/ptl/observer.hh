@@ -37,7 +37,7 @@ private:
          : t_( t ), cf_( cf ) {}
 
       T & t_;
-      callback_function_type const & cf_;
+      callback_function_type const cf_;
    };
 
    std::list< cb_data > observers_;
