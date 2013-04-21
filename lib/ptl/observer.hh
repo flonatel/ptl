@@ -6,6 +6,15 @@
 
 namespace ptl { namespace observer {
 
+/*
+ * Implementation of the Observer Pattern.
+ *
+ * To use this:
+ * o Create a subject object.
+ * o Register as many methods as you want.
+ * For each call of the 'notify_observers', all registered
+ * objects / methods are called.
+ */
 template< typename T, typename CB = typename T::callback_type >
 class subject {
 public:
