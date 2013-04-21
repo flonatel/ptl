@@ -31,6 +31,13 @@ Please do not include:
   the pure pattern is wanted)
 
 
+Available Patterns
+------------------
+
+* Observer (currently only thread agnostic)
+* Visitor (not fully completed)
+
+
 Initial Example
 ---------------
 
