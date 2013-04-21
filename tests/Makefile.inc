@@ -42,6 +42,22 @@ tests_PTL_IntTreeTest_CPPFLAGS = \
 tests_PTL_IntTreeTest_LDADD = \
         contrib/gmock/lib/libgtest.la
 
+# ObserverTest
+
+noinst_PROGRAMS += tests/PTL/ObserverTest
+
+TESTS += tests/PTL/ObserverTest
+
+tests_PTL_ObserverTest_SOURCES = \
+	tests/ObserverTest.cc
+
+tests_PTL_ObserverTest_CPPFLAGS = \
+        -I$(top_srcdir)/${GOOGLE_TEST_INCLUDE} \
+        -I$(top_srcdir)/lib
+
+tests_PTL_ObserverTest_LDADD = \
+        contrib/gmock/lib/libgtest.la
+
 # Local Variables:
 # mode: makefile
 # End:
