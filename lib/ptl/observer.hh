@@ -9,29 +9,29 @@ namespace ptl { namespace observer {
 template< typename T, typename CB = typename T::callback_type >
 class subject {
 public:
-   using CBF = std::function< CB >;
+   using callback_function_type = std::function< CB >;
 
-   void register_observer( T & t, std::function< CB > const & f ) {
-      observers_.push_back( sdata( t, f ) );
+   void register_observer( T & t, callback_function_type const & f ) {
+      observers_.push_back( cb_data( t, f ) );
    }
 
    template< typename ... Args >
    void notify_observers( Args && ... args ) {
       for( auto & it : observers_ ) {
-         it.cbf( it.t, args ... );
+         it.cf_( it.t_, args ... );
       }
    }
 
 private:
-   struct sdata {
-      sdata( T & pt, std::function< CB > const & pf )
-         : t( pt ), cbf( pf ) {}
+   struct cb_data {
+      cb_data( T & t, callback_function_type const & cf )
+         : t_( t ), cf_( cf ) {}
 
-      T & t;
-      CBF const & cbf;
+      T & t_;
+      callback_function_type const & cf_;
    };
 
-   std::list< sdata > observers_;
+   std::list< cb_data > observers_;
 };
 
 }}
