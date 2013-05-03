@@ -30,6 +30,9 @@ Please do not include:
 * OS / compiler dependent thinks like sockets, windows handling (just
   the pure pattern is wanted)
 
+This library is not designed to get the last CPU cycle out of your
+application.  ptl is about concepts and ideas.
+
 
 Available Patterns
 ------------------

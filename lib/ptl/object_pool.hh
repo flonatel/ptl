@@ -18,20 +18,42 @@ class fail {
 public:
    using factory_type = std::function< ObjectType() >;
 
-   static void init( std::vector< ObjectType> & objects,
-                     factory_type const & factory ) {
+   fail( std::vector< ObjectType> & objects,
+         factory_type const & factory ) {
       objects.reserve( PoolSize );
       for( unsigned long cnt( 0 ); cnt < PoolSize; ++cnt ) {
          objects.emplace_back( factory() );
       }
    }
 
-   static void no_more_objects( ) {
+   void no_more_objects() {
       throw std::runtime_error( "No more objects" );
    }
 };
 
+template< typename ObjectType, int PoolSize >
 class alloc_new {
+public:
+   using factory_type = std::function< ObjectType() >;
+
+   alloc_new( std::vector< ObjectType> & objects,
+              factory_type const & factory)
+   : _objects( objects ),
+      _factory( factory ) {
+      objects.reserve( PoolSize );
+   }
+
+   void no_more_objects() {
+      if( _objects.size() < PoolSize ) {
+         _objects.emplace_back( _factory() );
+         return;
+      }
+      throw std::runtime_error( "No more objects" );
+   }
+
+private:
+   std::vector< ObjectType > & _objects;
+   factory_type const _factory;
 };
 
 class multithread_block {
@@ -48,14 +70,12 @@ public:
    using factory_type = std::function< ObjectType() >;
 
    pool( factory_type const & factory )
-   : _factory( factory ) {
-      StrategyType< ObjectType, PoolSize >::init( _objects, _factory );
-   }
+   : _strategy( StrategyType< ObjectType, PoolSize >( _objects, factory ) ) {}
 
    ObjectType & get() {
       int const first_free( search_first_free() );
       if( first_free < 0 ) {
-         StrategyType< ObjectType, PoolSize >::no_more_objects();
+         _strategy.no_more_objects();
       }
       alloc_object( first_free );
       return _objects[ first_free ];
@@ -90,10 +110,9 @@ private:
       _used.reset( n );
    }
 
-   // ToDo: Move to alloc_new?
-   factory_type const _factory;
    std::vector< ObjectType > _objects;
    std::bitset< PoolSize >   _used;
+   StrategyType< ObjectType, PoolSize > _strategy;
 };
 
 }}
