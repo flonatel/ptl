@@ -86,6 +86,60 @@ Get the condensed essence of patterns (which is typically implemented
 over and over again) written down in a programming language.  These
 patterns can directly be used in software.
 
+List of (currently) not (completly) Implemented Patterns
+--------------------------------------------------------
+
+* Abstract factory
+* Builder
+* Factory method
+* Lazy initialization
+* Multiton
+* Object pool
+* Prototype
+* Resource acquisition is initialization
+* Singleton
+
+* Adapter or Wrapper or Translator
+* Bridge
+* Composite
+* Decorator
+* Facade
+* Flyweight
+* Front Controller
+* Module
+* Proxy
+
+* Blackboard
+* Chain of responsibility
+* Command
+* Interpreter
+* Iterator
+* Mediator
+* Memento
+* Null object
+* Observer or Publish/subscribe
+* Servant
+* Specification
+* State
+* Strategy
+* Template method
+* Visitor
+
+* Active Object
+* Balking
+* Binding properties
+* Double-checked locking
+* Event-based asynchronous
+* Guarded suspension
+* Lock
+* Messaging design pattern (MDP)
+* Monitor object
+* Reactor
+* Read-write lock
+* Scheduler
+* Thread pool
+* Thread-specific storage
+
 References
 ----------
 
