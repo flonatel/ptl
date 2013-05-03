@@ -41,7 +41,7 @@ class multithread_block {
 
 template< typename ObjectType,
           int      PoolSize = 7,
-          template< typename ObjectType, int PoolSize > class StrategyType
+          template< typename ObjectTypeL, int PoolSizeL > class StrategyType
              = strategies::fail >
 class pool {
 public:
