@@ -15,28 +15,27 @@ namespace ptl { namespace observer {
  * For each call of the 'notify_observers', all registered
  * objects / methods are called.
  */
-template< typename T, typename CB = typename T::callback_type >
+template< typename CB >
 class subject {
 public:
    using callback_function_type = std::function< CB >;
 
-   void register_observer( T & t, callback_function_type const & f ) {
-      observers_.push_back( cb_data( t, f ) );
+   void register_observer( callback_function_type const & f ) {
+      observers_.push_back( cb_data( f ) );
    }
 
    template< typename ... Args >
    void notify_observers( Args && ... args ) {
       for( auto & it : observers_ ) {
-         it.cf_( it.t_, args ... );
+         it.cf_( args ... );
       }
    }
 
 private:
    struct cb_data {
-      cb_data( T & t, callback_function_type const & cf )
-         : t_( t ), cf_( cf ) {}
+      cb_data( callback_function_type const & cf )
+         : cf_( cf ) {}
 
-      T & t_;
       callback_function_type const cf_;
    };
 

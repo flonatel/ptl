@@ -13,7 +13,7 @@ class A {
 public:
    A() : m_cm2_called( false ), m_str( "<unset>" ), m_i( 21 ) {}
 
-   using callback_type = void(A &, std::string const &, int);
+   using callback_type = void(std::string const &, int);
 
    void call_me(std::string const & str, int i) {
       m_str = str; m_i = i;
@@ -35,11 +35,12 @@ private:
 
 
 TEST_F(ObserverTest, test_register_notify) {
+   using namespace std::placeholders; // for _1, _2, _3...
 
-   ptl::observer::subject< A >  subject;
+   ptl::observer::subject< A::callback_type >  subject;
    A a;
 
-   subject.register_observer( a, &A::call_me );
+   subject.register_observer( std::bind( &A::call_me, &a, _1, _2 ) );
    subject.notify_observers( "Hello", 77 );
 
    ASSERT_EQ( a.get_string(), "Hello" );
@@ -48,13 +49,14 @@ TEST_F(ObserverTest, test_register_notify) {
 }
 
 TEST_F(ObserverTest, test_register_notify_two_obj) {
+   using namespace std::placeholders; // for _1, _2, _3...
 
-   ptl::observer::subject< A >  subject;
+   ptl::observer::subject< A::callback_type >  subject;
    A a1;
    A a2;
 
-   subject.register_observer( a1, &A::call_me );
-   subject.register_observer( a2, &A::call_me );
+   subject.register_observer( std::bind( &A::call_me, &a1, _1, _2 ) );
+   subject.register_observer( std::bind( &A::call_me, &a2, _1, _2 ) );
    subject.notify_observers( "Hello", 77 );
 
    ASSERT_EQ( a1.get_string(), "Hello" );
@@ -64,12 +66,13 @@ TEST_F(ObserverTest, test_register_notify_two_obj) {
 }
 
 TEST_F(ObserverTest, test_register_notify_two_methods) {
+   using namespace std::placeholders; // for _1, _2, _3...
 
-   ptl::observer::subject< A >  subject;
+   ptl::observer::subject< A::callback_type >  subject;
    A a;
 
-   subject.register_observer( a, &A::call_me );
-   subject.register_observer( a, &A::call_me2 );
+   subject.register_observer( std::bind( &A::call_me, &a, _1, _2 ) );
+   subject.register_observer( std::bind( &A::call_me2, &a, _1, _2 ) );
    subject.notify_observers( "Hello", 77 );
 
    ASSERT_EQ( a.get_string(), "Hello" );
