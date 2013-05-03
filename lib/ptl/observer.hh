@@ -21,25 +21,18 @@ public:
    using callback_function_type = std::function< CB >;
 
    void register_observer( callback_function_type const & f ) {
-      observers_.push_back( cb_data( f ) );
+      observers_.push_back( f );
    }
 
    template< typename ... Args >
    void notify_observers( Args && ... args ) {
       for( auto & it : observers_ ) {
-         it.cf_( args ... );
+         it( args ... );
       }
    }
 
 private:
-   struct cb_data {
-      cb_data( callback_function_type const & cf )
-         : cf_( cf ) {}
-
-      callback_function_type const cf_;
-   };
-
-   std::list< cb_data > observers_;
+   std::list< callback_function_type > observers_;
 };
 
 }}
