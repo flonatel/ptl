@@ -9,6 +9,8 @@
 
 namespace ptl { namespace object_pool {
 
+#if 0
+
 class strategy {};
 
 namespace strategies {
@@ -36,7 +38,7 @@ class alloc_new {
 public:
    using factory_type = std::function< ObjectType() >;
 
-   alloc_new( std::vector< ObjectType> & objects,
+   alloc_new( std::vector< ObjectType > & objects,
               factory_type const & factory)
    : _objects( objects ),
       _factory( factory ) {
@@ -67,11 +69,17 @@ template< typename ObjectType,
              = strategies::fail >
 class pool {
 public:
+   using object_sp = std::shared_ptr< ObjectType >;
    using factory_type = std::function< ObjectType() >;
 
    pool( factory_type const & factory )
    : _strategy( StrategyType< ObjectType, PoolSize >( _objects, factory ) ) {}
 
+   object_sp get();
+
+   // put is done implicitly with the help of the deleter of the shared_ptr.
+
+#if 0
    ObjectType & get() {
       int const first_free( search_first_free() );
       if( first_free < 0 ) {
@@ -91,8 +99,10 @@ public:
       // Try to put an object which is not part of the pool.
       abort();
    }
+#endif
 
 private:
+#if 0
    int search_first_free() const {
       for( int i{ 0 }; i < PoolSize; ++i ) {
          if( not _used[i] ) {
@@ -109,9 +119,96 @@ private:
    void free_object( int n ) {
       _used.reset( n );
    }
+#endif
 
-   std::vector< ObjectType > _objects;
-   std::bitset< PoolSize >   _used;
+   std::vector< object_sp > _objects;
+   StrategyType< ObjectType, PoolSize > _strategy;
+};
+#endif
+
+namespace {
+
+template< typename ObjectType, int PoolSize >
+class base_pool {
+public:
+   using object_sp = std::shared_ptr< ObjectType >;
+
+   void reserve( std::size_t const psize ) {
+      _objects.reserve( psize );
+   }
+
+   void push_back( object_sp const & obj ) {
+      _objects.push_back( obj );
+   }
+
+   bool empty() const;
+   object_sp get();
+
+private:
+   std::vector< object_sp > _objects;
+};
+
+template< typename ObjectType, int PoolSize >
+class deleter {
+public:
+   deleter( base_pool< ObjectType, PoolSize > & bpool )
+      : _base_pool( bpool ) {}
+
+   void operator()( ObjectType * p ) const {
+      _base_pool.put(
+
+   private:
+   base_pool< ObjectType, PoolSize > & _base_pool;
+};
+
+}
+
+namespace strategies {
+
+template< typename ObjectType, int PoolSize >
+class fail {
+public:
+   using object_sp = std::shared_ptr< ObjectType >;
+   using factory_type = std::function< ObjectType *() >;
+
+   fail( base_pool< ObjectType, PoolSize > & bpool,
+         factory_type const & factory ) {
+      bpool.reserve( PoolSize );
+      for( unsigned long cnt( 0 ); cnt < PoolSize; ++cnt ) {
+         bpool.push_back( std::shared_ptr< ObjectType >(
+                             factory(),
+                             deleter< ObjectType, PoolSize >( bpool ) ) );
+      }
+   }
+
+   object_sp get_from_empty_pool();
+
+};
+
+}
+
+template< typename ObjectType,
+          int      PoolSize = 7,
+          template< typename ObjectTypeL, int PoolSizeL > class StrategyType
+             = strategies::fail >
+class pool {
+public:
+   using object_sp = std::shared_ptr< ObjectType >;
+   using factory_type = std::function< ObjectType *() >;
+
+   pool( factory_type const & factory )
+   : _strategy( StrategyType< ObjectType, PoolSize >( _base_pool, factory ) )
+      {}
+
+   object_sp get() {
+      if( not _base_pool.empty() ) {
+         return _base_pool.get();
+      }
+      return _strategy.get_from_empty_pool();
+   }
+
+private:
+   base_pool< ObjectType, PoolSize >    _base_pool;
    StrategyType< ObjectType, PoolSize > _strategy;
 };
 
