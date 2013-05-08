@@ -35,13 +35,12 @@ private:
    int _i;
 };
 
-using a_sp = std::shared_ptr< A >;
-using a_ptr = A *;
+using a_uptr = std::unique_ptr< A >;
 
 int A::cnstr_call_cnt( 0 );
 
-a_ptr a_factory( int i ) {
-   return new A( i );
+a_uptr a_factory( int i ) {
+   return std::unique_ptr< A >( new A( i ) );
 }
 
 TEST_F(ObjectPoolTest, test_st_fail_init_only) {
@@ -55,7 +54,7 @@ TEST_F(ObjectPoolTest, test_st_fail_init_only_lambda) {
    A::cnstr_call_cnt = 0;
    int const j { 10 };
    ptl::object_pool::pool< A > a_pool(
-      [j]() -> a_ptr { return new A( j ); } );
+      [j]() -> a_uptr { return std::unique_ptr< A >( new A( j ) ); } );
    ASSERT_EQ( A::cnstr_call_cnt, 7 );
 }
 

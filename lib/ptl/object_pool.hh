@@ -141,7 +141,7 @@ public:
       _objects.push_back( obj );
    }
 
-   bool empty() const;
+   bool empty() const { return _objects.empty(); }
    object_sp get();
 
 private:
@@ -155,9 +155,13 @@ public:
       : _base_pool( bpool ) {}
 
    void operator()( ObjectType * p ) const {
-      _base_pool.put(
+      _base_pool.push_back(
+         std::shared_ptr< ObjectType >(
+            p,
+            deleter< ObjectType, PoolSize >( _base_pool ) ) );
+   }
 
-   private:
+private:
    base_pool< ObjectType, PoolSize > & _base_pool;
 };
 
@@ -169,14 +173,15 @@ template< typename ObjectType, int PoolSize >
 class fail {
 public:
    using object_sp = std::shared_ptr< ObjectType >;
-   using factory_type = std::function< ObjectType *() >;
+   using object_up = std::unique_ptr< ObjectType >;
+   using factory_type = std::function< object_up() >;
 
    fail( base_pool< ObjectType, PoolSize > & bpool,
          factory_type const & factory ) {
       bpool.reserve( PoolSize );
       for( unsigned long cnt( 0 ); cnt < PoolSize; ++cnt ) {
          bpool.push_back( std::shared_ptr< ObjectType >(
-                             factory(),
+                             factory().release(),
                              deleter< ObjectType, PoolSize >( bpool ) ) );
       }
    }
@@ -194,7 +199,8 @@ template< typename ObjectType,
 class pool {
 public:
    using object_sp = std::shared_ptr< ObjectType >;
-   using factory_type = std::function< ObjectType *() >;
+   using object_up = std::unique_ptr< ObjectType >;
+   using factory_type = std::function< object_up() >;
 
    pool( factory_type const & factory )
    : _strategy( StrategyType< ObjectType, PoolSize >( _base_pool, factory ) )
