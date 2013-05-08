@@ -13,6 +13,7 @@ public:
 
    void test_st_alloc_init_only();
    void test_st_alloc_get_all();
+   void test_st_alloc_get_too_many();
 };
 
 class A {
@@ -69,15 +70,14 @@ TEST_F(ObjectPoolTest, test_st_fail_get_one) {
    ASSERT_EQ( a->value(), j );
 }
 
-#if 0
 TEST_F(ObjectPoolTest, test_st_fail_get_all) {
    A::cnstr_call_cnt = 0;
-   int const j { 9 };
+   int const j { 12 };
    ptl::object_pool::pool< A > a_pool( std::bind( a_factory, j ) );
 
-   for( int i{ 0 }; i < 7; ++i ) {
+   for( int i{ 0 }; i < 12; ++i ) {
       auto a( a_pool.get() );
-      ASSERT_EQ( a->value(), 9 );
+      ASSERT_EQ( a->value(), j );
    }
 
    ASSERT_EQ( A::cnstr_call_cnt, 7 );
@@ -85,12 +85,13 @@ TEST_F(ObjectPoolTest, test_st_fail_get_all) {
 
 TEST_F(ObjectPoolTest, test_st_fail_get_too_many) {
    A::cnstr_call_cnt = 0;
-   int const j { 9 };
+   int const j { 13 };
    ptl::object_pool::pool< A > a_pool( std::bind( a_factory, j ) );
+   std::vector< std::shared_ptr< A > > av;
 
    for( int i{ 0 }; i < 7; ++i ) {
-      auto a( a_pool.get() );
-      ASSERT_EQ( a->value(), 9 );
+      av.push_back( a_pool.get() );
+      ASSERT_EQ( av.back()->value(), j );
    }
 
    ASSERT_EQ( A::cnstr_call_cnt, 7 );
@@ -99,13 +100,12 @@ TEST_F(ObjectPoolTest, test_st_fail_get_too_many) {
 
 TEST_F(ObjectPoolTest, test_st_fail_put_many) {
    A::cnstr_call_cnt = 0;
-   int const j { 9 };
+   int const j { 14 };
    ptl::object_pool::pool< A > a_pool( std::bind( a_factory, j ) );
 
    for( int i{ 0 }; i < 15; ++i ) {
       auto a( a_pool.get() );
-      ASSERT_EQ( a->value(), 9 );
-      a_pool.put( a );
+      ASSERT_EQ( a->value(), j );
    }
 
    ASSERT_EQ( A::cnstr_call_cnt, 7 );
@@ -115,7 +115,7 @@ TEST_F(ObjectPoolTest, test_st_fail_put_many) {
 
 TEST_F(ObjectPoolTest, test_st_alloc_init_only) {
    A::cnstr_call_cnt = 0;
-   int const j { 9 };
+   int const j { 15 };
    ptl::object_pool::pool< A, 7,
                            ptl::object_pool::strategies::alloc_new > a_pool(
       std::bind( a_factory, j ) );
@@ -124,19 +124,37 @@ TEST_F(ObjectPoolTest, test_st_alloc_init_only) {
 
 TEST_F(ObjectPoolTest, test_st_alloc_get_all) {
    A::cnstr_call_cnt = 0;
-   int const j { 9 };
+   int const j { 16 };
    ptl::object_pool::pool<
       A, 7, ptl::object_pool::strategies::alloc_new > a_pool(
          std::bind( a_factory, j ) );
+   std::vector< std::shared_ptr< A > > av;
 
    for( int i{ 0 }; i < 7; ++i ) {
-      auto a( a_pool.get() );
-      ASSERT_EQ( a->value(), 9 );
+      av.push_back( a_pool.get() );
+      ASSERT_EQ( av.back()->value(), j );
    }
 
    ASSERT_EQ( A::cnstr_call_cnt, 7 );
 }
-#endif
+
+TEST_F(ObjectPoolTest, test_st_alloc_get_too_many) {
+   A::cnstr_call_cnt = 0;
+   int const j { 17 };
+   ptl::object_pool::pool< A, 7,
+                           ptl::object_pool::strategies::alloc_new > a_pool(
+      std::bind( a_factory, j ) );
+   std::vector< std::shared_ptr< A > > av;
+
+   for( int i{ 0 }; i < 7; ++i ) {
+      av.push_back( a_pool.get() );
+      ASSERT_EQ( av.back()->value(), j );
+   }
+
+   ASSERT_EQ( A::cnstr_call_cnt, 7 );
+   ASSERT_THROW( a_pool.get(), std::runtime_error );
+}
+
 
 int main(int argc, char **argv) {
   ::testing::InitGoogleTest(&argc, argv);

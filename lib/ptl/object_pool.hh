@@ -7,6 +7,10 @@
 #include <memory>
 #include <stdexcept>
 
+#include <iostream>
+
+// ToDo: What happens if an object should be placed back into a non-any-longer existing pool?
+
 namespace ptl { namespace object_pool {
 
 #if 0
@@ -133,18 +137,32 @@ class base_pool {
 public:
    using object_sp = std::shared_ptr< ObjectType >;
 
+   base_pool() = default;
+   base_pool( base_pool const & ) = delete;
+   base_pool & operator=( base_pool const & ) = delete;
+
    void reserve( std::size_t const psize ) {
       _objects.reserve( psize );
    }
 
    void push_back( object_sp const & obj ) {
+      std::cerr << "PB " << _objects.size() << std::endl;
       _objects.push_back( obj );
    }
 
-   bool empty() const { return _objects.empty(); }
+   bool empty() const {
+      return _objects.empty();
+   }
+
+   std::size_t size() const {
+      return _objects.size();
+   }
+
    object_sp get() {
+      std::cerr << "g 1 " << _objects.size() << std::endl;
       object_sp rval( _objects.back() );
       _objects.pop_back();
+      std::cerr << "g 2 " << _objects.size() << std::endl;
       return rval;
    }
 
@@ -173,6 +191,15 @@ private:
 
 namespace strategies {
 
+// ToDo: is something like this possible?
+template< typename ObjectType >
+class type_definitions {
+public:
+   using object_sp = std::shared_ptr< ObjectType >;
+   using object_up = std::unique_ptr< ObjectType >;
+   using factory_type = std::function< object_up() >;
+};
+
 template< typename ObjectType, int PoolSize >
 class fail {
 public:
@@ -193,6 +220,42 @@ public:
    object_sp get_from_empty_pool() {
       throw std::runtime_error( "No more objects" );
    }
+};
+
+
+template< typename ObjectType, int PoolSize >
+class alloc_new {
+public:
+   using object_sp = std::shared_ptr< ObjectType >;
+   using object_up = std::unique_ptr< ObjectType >;
+   using factory_type = std::function< object_up() >;
+
+   alloc_new( base_pool< ObjectType, PoolSize > & bpool,
+              factory_type const & factory )
+      : _objects_created( 0 ),
+        _base_pool( bpool ),
+        _factory( factory ) {}
+
+   object_sp get_from_empty_pool() {
+      if( _objects_created < PoolSize ) {
+         ++_objects_created;
+         return std::shared_ptr< ObjectType >(
+            _factory().release(),
+            deleter< ObjectType, PoolSize >( _base_pool ) );
+      }
+      throw std::runtime_error( "No more objects" );
+   }
+
+private:
+   // PoolSize gives the size of the pool, e.g. the (maximum) number
+   // of objects which should be created.  Because to some point of
+   // time it is unclear how many objects are correlated to this pool
+   // but are not in the pool, there is the need for an extra variable
+   // which holds the number of already constructed objects (which is
+   // the number of existing objects which correspond to this pool.)
+   int _objects_created;
+   base_pool< ObjectType, PoolSize > & _base_pool;
+   factory_type _factory;
 };
 
 }
