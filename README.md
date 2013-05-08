@@ -11,7 +11,7 @@ time.
 If you want to help, please:
 
 * Look for a pattern that you want to implement
-  There are lots of them: [Software Design Patterns](http://en.wikipedia.org/wiki/Software_design_pattern)
+  There are lots of them
 * Fork
 * While you are not happy:
 
@@ -37,9 +37,9 @@ application.  ptl is about concepts and ideas.
 Available Patterns
 ------------------
 
+* Object Pool with support for strategies 'fail' and 'alloc_new'
 * Observer (currently only thread agnostic)
 * Visitor (not fully completed)
-
 
 Initial Example
 ---------------
@@ -101,7 +101,6 @@ List of (currently) not (completly) Implemented Patterns
 * Prototype
 * Resource acquisition is initialization
 * Singleton
-
 * Adapter or Wrapper or Translator
 * Bridge
 * Composite
@@ -111,7 +110,6 @@ List of (currently) not (completly) Implemented Patterns
 * Front Controller
 * Module
 * Proxy
-
 * Blackboard
 * Chain of responsibility
 * Command
@@ -127,7 +125,6 @@ List of (currently) not (completly) Implemented Patterns
 * Strategy
 * Template method
 * Visitor
-
 * Active Object
 * Balking
 * Binding properties
