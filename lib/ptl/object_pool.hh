@@ -142,7 +142,11 @@ public:
    }
 
    bool empty() const { return _objects.empty(); }
-   object_sp get();
+   object_sp get() {
+      object_sp rval( _objects.back() );
+      _objects.pop_back();
+      return rval;
+   }
 
 private:
    std::vector< object_sp > _objects;
@@ -186,8 +190,9 @@ public:
       }
    }
 
-   object_sp get_from_empty_pool();
-
+   object_sp get_from_empty_pool() {
+      throw std::runtime_error( "No more objects" );
+   }
 };
 
 }
