@@ -74,6 +74,22 @@ tests_PTL_ObjectPoolTest_CPPFLAGS = \
 tests_PTL_ObjectPoolTest_LDADD = \
         contrib/gmock/lib/libgtest.la
 
+# ObjectPoolTest
+
+noinst_PROGRAMS += tests/PTL/ObjectPoolMTTest
+
+TESTS += tests/PTL/ObjectPoolMTTest
+
+tests_PTL_ObjectPoolMTTest_SOURCES = \
+	tests/ObjectPoolMTTest.cc
+
+tests_PTL_ObjectPoolMTTest_CPPFLAGS = \
+        -I$(top_srcdir)/${GOOGLE_TEST_INCLUDE} \
+        -I$(top_srcdir)/lib
+
+tests_PTL_ObjectPoolMTTest_LDADD = \
+        contrib/gmock/lib/libgtest.la
+
 # Local Variables:
 # mode: makefile
 # End:
