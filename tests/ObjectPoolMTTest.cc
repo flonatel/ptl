@@ -11,14 +11,14 @@ public:
 template< typename OBJ_TYPE >
 using mtqueue = ptl::object_pool::pool<
    OBJ_TYPE,
-   ptl::object_pool::strategies::threading::multi,
-   ptl::object_pool::strategies::notify_not_full::all,
-   ptl::object_pool::strategies::notify_not_empty::all,
-   ptl::object_pool::strategies::termination::terminatable,
-   ptl::object_pool::strategies::container::queue,
-   ptl::object_pool::strategies::size_handling::constant >;
+   ptl::object_pool::policies::threading::multi,
+   ptl::object_pool::policies::notify::all,
+   ptl::object_pool::policies::notify::all,
+   ptl::object_pool::policies::termination::terminatable,
+   ptl::object_pool::policies::container::queue,
+   ptl::object_pool::policies::size_handling::constant >;
 
-ptl::object_pool::strategies::size_handling::constant csize( 777 );
+ptl::object_pool::policies::size_handling::constant csize( 777 );
 
 TEST_F(ObjectPoolMTTest, test_two_threads_simple) {
 
@@ -60,7 +60,7 @@ TEST_F(ObjectPoolMTTest, test_one_thread_terminate) {
             while( true ) {
                mtqi.pop();
             }
-         } catch( ptl::object_pool::terminate_error & te ) {
+         } catch( ptl::object_pool::terminate_except & te ) {
             // normal termination...
          }
       } );
@@ -86,7 +86,7 @@ TEST_F(ObjectPoolMTTest, test_many_thread_terminate) {
                   mtqi.pop();
                   ++overall_cnt;
                }
-            } catch( ptl::object_pool::terminate_error & te ) {
+            } catch( ptl::object_pool::terminate_except & te ) {
                // normal termination...
             }
          } );

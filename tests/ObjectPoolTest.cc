@@ -9,17 +9,17 @@ public:
 template< typename OBJ_TYPE >
 using mtqueue = ptl::object_pool::pool<
    OBJ_TYPE,
-   ptl::object_pool::strategies::threading::multi,
-   ptl::object_pool::strategies::notify_not_full::all,
-   ptl::object_pool::strategies::notify_not_empty::all,
-   ptl::object_pool::strategies::termination::terminatable,
-   ptl::object_pool::strategies::container::queue,
-   ptl::object_pool::strategies::size_handling::constant >;
+   ptl::object_pool::policies::threading::multi,
+   ptl::object_pool::policies::notify::all,
+   ptl::object_pool::policies::notify::all,
+   ptl::object_pool::policies::termination::terminatable,
+   ptl::object_pool::policies::container::queue,
+   ptl::object_pool::policies::size_handling::constant >;
 
 class A {
 };
 
-ptl::object_pool::strategies::size_handling::constant csize( 777 );
+ptl::object_pool::policies::size_handling::constant csize( 777 );
 
 TEST_F(ObjectPoolTest, test_compile) {
 
